@@ -1,3 +1,19 @@
-<p>
-  clinic works!
-</p>
+<div *ngIf = "clinic">
+    <h2>{{clinic.name}} edit</h2>
+    <div>
+        <label>id: </label>{{clinic.id}}
+    </div>
+    <div>
+        <label>name: </label>
+        <input [(ngModel)]="clinic.name" (keyup.enter)="saveClinic()" autofocus placeholder="Clinic name"/>
+    </div>
+</div>
+
+<ul class="clinics">
+    <li *ngFor="let clinic of clinics">
+        <span class="badge">{{clinic.id}}</span> {{clinic.name}}
+        <a href="clinic/{{clinic.id}}">edit</a>
+        <a href="clinic/{{clinic.id}}/delete">delete</a>
+    </li>
+</ul>
+<a href="clinic/add">Add new</a>
