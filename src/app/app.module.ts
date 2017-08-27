@@ -1,7 +1,7 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {LocalStorageModule} from 'angular-2-local-storage';
+import {AsyncLocalStorageModule} from 'angular2-async-local-storage';
 
 import {AppComponent} from './app.component';
 import {ClinicComponent} from './clinic/clinic.component';
@@ -22,10 +22,7 @@ import {AppRoutingModule} from './app-routing/app-routing.module';
         BrowserModule,
         AppRoutingModule,
         FormsModule,
-        LocalStorageModule.withConfig({
-            prefix: 'casper-health',
-            storageType: 'localStorage'
-        })
+        AsyncLocalStorageModule,
     ],
     providers: [
     ],

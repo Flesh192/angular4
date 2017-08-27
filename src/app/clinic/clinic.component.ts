@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import { LocalStorageService } from 'angular-2-local-storage';
+import {AsyncLocalStorage} from 'angular2-async-local-storage';
+import {Router} from '@angular/router';
 
 import {Clinic} from '../clinic';
 
@@ -12,51 +13,82 @@ import {Clinic} from '../clinic';
 export class ClinicComponent implements OnInit {
     clinics: Clinic[];
     clinic: Clinic;
+    title: string;
 
     constructor(private route: ActivatedRoute,
-                private localStorageService: LocalStorageService) {
-    }
+                protected storage: AsyncLocalStorage,
+                private router: Router) {}
+
 
     getClinics() {
-        /*let testOb = [
-            { id: 11, name: 'Mr. Nice1' },
-            { id: 12, name: 'Narco' },
-            { id: 13, name: 'Bombasto' },
-            { id: 14, name: 'Celeritas' },
-            { id: 15, name: 'Magneta' },
-            { id: 16, name: 'RubberMan' },
-            { id: 17, name: 'Dynama' },
-            { id: 18, name: 'Dr IQ' },
-            { id: 19, name: 'Magma' },
-            { id: 20, name: 'Tornado' }
-        ];
-        this.localStorageService.set('clinics', testOb);*/
-        Promise.resolve(this.localStorageService.get('clinics')).then(clinics => {
-            return this.clinics = clinics as Clinic[];
+        this.storage.getItem('clinics').subscribe((clinics) => {
+            this.clinics = clinics;
         });
     }
 
-    getClinic(id: number): void {
-        //this.clinic = this.clinics.find(clinic => clinic.id === +id);
-        Promise.resolve(this.localStorageService.get('clinics')).then(clinics => {
-            let clinicsArr = clinics as Clinic[];
-            this.clinic = clinicsArr.find(clinic => clinic.id === +id);
+    editClinic(id: number) {
+        this.title = 'Edit';
+        this.storage.getItem('clinics').subscribe((clinics) => {
+            this.clinic = clinics.find(clinic => clinic.id === +id);
         });
     }
 
     saveClinic() {
-        this.clinics.push({id: this.clinic.id, name: this.clinic.name});
-        this.localStorageService.set('clinics', this.clinics);
-    }
-
-    ngOnInit() {
-        this.route.params.subscribe(params => {
-            if (params['id']) {
-                this.getClinic(params['id']);
-            } else {
-                this.getClinics();
-            }
+        this.storage.getItem('clinics').subscribe(clinics => {
+            let data = clinics.filter(clinic => clinic.id !== this.clinic.id);
+            data.push(this.clinic);
+            this.storage.setItem('clinics', data).subscribe(() => {}, () => {});
+            this.clinic = null;
+            this.clinics = data;
         });
     }
 
+    addClinic() {
+        this.title = 'Add';
+        let id = this.generateId();
+        this.clinic = {id: id, name: ''};
+    }
+
+    deleteClinic(id: number) {
+        console.log(id);
+        this.storage.getItem('clinics').subscribe(clinics => {
+            this.clinics = clinics.filter(clinic => clinic.id !== id);
+            this.storage.setItem('clinics', this.clinics).subscribe(() => {}, () => {});
+        });
+    }
+
+    generateId() {
+        let id: number;
+        let flag = true;
+        do {
+            id = Math.floor(Math.random() * 100);
+            let count = this.clinics.filter(clinic => clinic.id === id).length;
+            if (count == 0) {
+                flag = false;
+            }
+        }
+        while (flag);
+        return id;
+    }
+
+    ngOnInit() {
+        this.getClinics();
+
+        /**
+         * Add test data
+         */
+        this.storage.getItem('clinics').subscribe(clinics => {
+            if (clinics == null) {
+                let testOb = [
+                    { id: 1, name: 'Clinic 1' },
+                    { id: 2, name: 'Clinic 2' },
+                    { id: 3, name: 'Clinic 3' },
+                    { id: 4, name: 'Clinic 4' },
+                    { id: 5, name: 'Clinic 5' },
+                ];
+                this.storage.setItem('clinics', testOb)
+                    .subscribe(() => {}, () => {});
+            }
+        });
+    }
 }

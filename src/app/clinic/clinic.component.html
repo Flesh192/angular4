@@ -1,5 +1,5 @@
 <div *ngIf = "clinic">
-    <h2>{{clinic.name}} edit</h2>
+    <h2>{{title}} {{clinic.name}}</h2>
     <div>
         <label>id: </label>{{clinic.id}}
     </div>
@@ -12,8 +12,8 @@
 <ul class="clinics">
     <li *ngFor="let clinic of clinics">
         <span class="badge">{{clinic.id}}</span> {{clinic.name}}
-        <a href="clinic/{{clinic.id}}">edit</a>
-        <a href="clinic/{{clinic.id}}/delete">delete</a>
+        <button (click)="editClinic(clinic.id)">edit</button>
+        <button (click)="deleteClinic(clinic.id); $event.stopPropagation()">delete</button>
     </li>
 </ul>
-<a href="clinic/add">Add new</a>
+<button (click)="addClinic()" class="add-new">Add new</button>
